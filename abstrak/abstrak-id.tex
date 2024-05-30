@@ -1,0 +1,28 @@
+\begin{center}
+  \large\textbf{ABSTRAK}
+\end{center}
+
+\addcontentsline{toc}{chapter}{ABSTRAK}
+
+\vspace{2ex}
+
+\begingroup
+% Menghilangkan padding
+\setlength{\tabcolsep}{0pt}
+
+\noindent
+\begin{tabularx}{\textwidth}{l >{\centering}m{2em} X}
+  Nama Mahasiswa    & : & \name{}         \\
+
+  Judul Tugas Akhir & : & \tatitle{}      \\
+
+  Pembimbing        & : & 1. \advisor{}   \\
+                    &   & 2. \coadvisor{} \\
+\end{tabularx}
+\endgroup
+
+% Ubah paragraf berikut dengan abstrak dari tugas akhir
+Beton memegang peranan penting dalam berbagai proyek infrastruktur. Menurut data, sekitar 70\% dari proyek-proyek konstruksi di dunia menggunakan beton sebagai material utamanya. Adanya rongga udara dapat mengurangi kekuatan beton hingga 30\% dan mempengaruhi kinerjanya dalam jangka panjang. Pada penelitian kali ini, digunakan CNN 2D untuk mengklasifikasi data sinyal B-Scan hasil generate dari simulasi GPR menggunakan gprMax. File input untuk simulasi dipersiapkan secara otomatis menggunakan python yang nantinya akan digenerate menggunakan GPU. Data tersebut akan dilakukan preprocessing agar dapat dilakukan proses training. Digunakan 5 model CNN 2D pada percobaan kali ini dimana model pertama dilakukan percobaan sebanyak 3 kali untuk mengetahui pembagian data training yang optimal. Model hasil training nantinya akan diuji pada data yang telah disiapkan untuk testing. Digunakan pula Roboflow sebagai pembanding dari CNN 2D dan YOLOv9 sebagai pengujian tahap akhir pada implementasi deteksi berbentuk website. Hasil dari penelitian ini menunjukkan bahwa model CNN 2D yang digunakan mampu mengklasifikasi data sinyal B-Scan dengan akurasi sebesar 0.9964 pada model ke-1 dengan pembagian data 70/15/15. Pada data valiadasi, didapatkan inference time sebesar 115ms/step dengan F1 score sebesar 1.0. Hasil klasifikasi dengan Roboflow juga memiliki akurasi yang baik sebesar 0.986. Pada pengujian tahap akhir, YOLOv9 mampu mendeteksi rongga udara dengan baik dengan akurasi 0.979.
+
+% Ubah kata-kata berikut dengan kata kunci dari tugas akhir
+Kata Kunci: Beton, Rongga Udara, CNN, GPR, gprMax.

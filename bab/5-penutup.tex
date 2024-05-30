@@ -1,0 +1,29 @@
+\chapter{PENUTUP}
+\label{chap:penutup}
+
+Pada bab ini akan dipaparkan kesimpulan dari hasil pengujian yang akan menjawab dari permasalahan yang diangkat dari pelaksanaan tugas akhir ini. Pada bab ini juga diapaprkan saran mengenai hal yang dapat dilakukan untuk mengembangkan penelitian kedepannya.
+
+% Ubah bagian-bagian berikut dengan isi dari penutup
+
+\section{Kesimpulan}
+\label{sec:kesimpulan}
+
+Berdasarkan hasil pengujian yang dilakukan selama pelaksanaan tugas akhir ini adalah sebagai berikut:
+
+\begin{enumerate}[nolistsep]
+  \item Model CNN 2D memiliki akurasi yang baik bila dataset dibagi menjadi 70\% training, 15\% validasi, dan 15\% testing
+  \item Model dengan akurasi tertinggi didapatkan pada percobaan kedua dengan nilai akurasi sebesar 0.9964 dan training loss sebesar 0.0103. Didapatkan pula nilai f1 score sebesar 0.99714893
+  \item Hasil training cenderung memicu lonjakan baik kecil maupun besar yang disebabkan oleh dataset yang digunakan dimana dataset sinyal B-Scan dari simulasi gprMax pada kelas tanpa rongga udara memiliki bentuk yang hampir serupa dengan sedikit variasi
+  \item Hasil klasifikasi dengan Roboflow memiliki hasil yang tidak kalah baik dibandingkan dengan CNN 2D
+  \item Pendeteksian dengan YOLOv9 memiliki akurasi yang baik sebesar 0.979 dapat mendeteksi rongga udara dengan baik
+\end{enumerate}
+
+\section{Saran}
+\label{chap:saran}
+
+Berdasarkan hasil yang diperoleh dari penelitian ini maka saran yang dapat dipertimbangkan untuk pengembangan lebih lanjut adalah sebagai berikut:
+
+\begin{enumerate}[nolistsep]
+  \item Memperbanyak variasi dari kedua kelas dataset yang digunakan
+  \item Mencoba model CNN 2D yang lebih beragam untuk mengetahui model yang lebih efektif dan efisien
+\end{enumerate}

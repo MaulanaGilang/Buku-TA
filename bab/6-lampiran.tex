@@ -1,0 +1,3317 @@
+\chapter*{LAMPIRAN}
+
+\section*{Kode Program}
+
+\subsection*{Program Contoh Data Input gprMax}
+\begin{lstlisting}[
+    caption={Contoh File Input gprMax},
+    label={lst:gprMaxinput}
+]
+#title: B-scan from rebar in concrete
+
+#domain: 1.0 0.3 0.001
+#dx_dy_dz: 0.001 0.001 0.001
+#time_window: 3e-9
+
+#material: 7.0 0.0 1.0 0.0 concrete
+#material: 12.0 1.0e6 1.0 0.0 steel
+
+#waveform: ricker 1 4.5e9 my_ricker
+#src_steps: 0.001 0 0
+#rx_steps: 0.001 0 0
+#box: 0.0 0.0 0.0 1.0 0.203 0.001 concrete
+#hertzian_dipole: z 0.010 0.203 0 my_ricker
+#rx: 0.050 0.203 0
+#cylinder: 0.154 0.092 0.0 0.154 0.092 0.001 0.007 steel
+#cylinder: 0.304 0.092 0.0 0.304 0.092 0.001 0.007 steel
+#cylinder: 0.454 0.092 0.0 0.454 0.092 0.001 0.007 steel
+#cylinder: 0.604 0.092 0.0 0.604 0.092 0.001 0.007 steel
+#cylinder: 0.754 0.092 0.0 0.754 0.092 0.001 0.007 steel
+#cylinder: 0.904 0.092 0.0 0.904 0.092 0.001 0.007 steel
+#cylinder: 0.054 0.092 0.0 0.054 0.092 0.001 0.007 steel
+#cylinder: 0.416 0.129 0.0 0.416 0.129 0.001 0.013 free_space
+#cylinder: 0.425 0.121 0.0 0.425 0.121 0.001 0.009 free_space
+#cylinder: 0.416 0.122 0.0 0.416 0.122 0.001 0.015 free_space
+#cylinder: 0.505 0.120 0.0 0.505 0.120 0.001 0.015 free_space
+#cylinder: 0.499 0.117 0.0 0.499 0.117 0.001 0.010 free_space
+#cylinder: 0.499 0.110 0.0 0.499 0.110 0.001 0.014 free_space
+#cylinder: 0.495 0.116 0.0 0.495 0.116 0.001 0.011 free_space
+#cylinder: 0.503 0.120 0.0 0.503 0.120 0.001 0.007 free_space
+\end{lstlisting}
+
+\subsection*{Program Generate File Input gprMax}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program untuk Menghasilkan File Input gprMax},
+    label={lst:airauto}
+]
+import os
+import random
+
+def generate_airgap_cylinders(file, box_height):
+    # Define bounds for airgap cylinder placement
+    x_min, x_max = 0.05, 0.95
+    y_min, y_max = 0.090, box_height - 0.05  # Adjusted Y bounds to ensure cylinders are within the concrete slab
+    
+    airgap_count = random.randint(1, 2)  # Generate 1 or 2 airgaps per file
+    for _ in range(airgap_count):
+        # Each airgap formed by 3 to 5 cylinders
+        cylinder_count = random.randint(3, 5)
+        
+        # Initial positions for the first cylinder in an airgap
+        x_position = random.uniform(x_min, x_max)
+        y_position = random.uniform(y_min, y_max)
+
+        for _ in range(cylinder_count):
+            radius = random.uniform(0.010, 0.035) / 2  # Radius between 0.010m and 0.035m
+            # Write cylinder, then adjust positions for the next one
+            file.write(f"#cylinder: {x_position:.3f} {y_position:.3f} 0.0 {x_position:.3f} {y_position:.3f} 0.001 {radius:.3f} free_space\n")
+            
+            # Tighten adjustments for X and Y to encourage collisions
+            x_adjust = random.uniform(-0.010, 0.010)
+            y_adjust = random.uniform(-0.010, 0.010)
+            
+            # Update positions ensuring they remain within defined bounds
+            x_position = min(max(x_position + x_adjust, x_min), x_max)
+            y_position = min(max(y_position + y_adjust, y_min), y_max)
+
+def generate_gprMax_files():
+    base_content = """#title: B-scan from rebar in concrete
+
+#domain: 1.0 0.3 0.001
+#dx_dy_dz: 0.001 0.001 0.001
+#time_window: 3e-9
+
+#material: 7.0 0.0 1.0 0.0 concrete
+#material: 12.0 1.0e6 1.0 0.0 steel
+
+#waveform: ricker 1 4.5e9 my_ricker
+#src_steps: 0.001 0 0
+#rx_steps: 0.001 0 0
+"""
+
+    parent_folder = "airgap"
+    os.makedirs(parent_folder, exist_ok=True)
+
+    box_height_start = 0.190
+    box_height_end = 0.210
+    total_files = 2000  # Adjust total files generated to 2000
+
+    for file_number in range(1, total_files + 1):
+        box_height = random.uniform(box_height_start, box_height_end)
+        folder_name = os.path.join(parent_folder, str(file_number))
+        os.makedirs(folder_name, exist_ok=True)
+        filename = os.path.join(folder_name, f"data{file_number}.in")
+
+        with open(filename, "w") as file:
+            file.write(base_content)
+            file.write(f"#box: 0.0 0.0 0.0 1.0 {box_height:.3f} 0.001 concrete\n")
+            file.write(f"#hertzian_dipole: z 0.010 {box_height:.3f} 0 my_ricker\n")
+            file.write(f"#rx: 0.050 {box_height:.3f} 0\n")
+
+            # Generate steel cylinders with a common Y position
+            common_y_position = random.uniform(0.090, 0.110)  # Fixed Y position for steel cylinders within the range
+            for position in [0.050, 0.200, 0.350, 0.500, 0.650, 0.800, 0.950]:
+                new_x = (position + (file_number * 0.001)) % 1.0
+                file.write(f"#cylinder: {new_x:.3f} {common_y_position:.3f} 0.0 {new_x:.3f} {common_y_position:.3f} 0.001 0.007 steel\n")
+
+            # Generate abstract airgap shapes with tightened X and Y adjustments
+            generate_airgap_cylinders(file, box_height)
+
+            print(f"Generated file: {folder_name}/data{file_number}.in")
+
+generate_gprMax_files()
+
+\end{lstlisting}
+
+\subsection*{Program Setup GPU}
+\begin{lstlisting}[
+    language=,
+    caption={Program Setup GPU},
+    label={lst:setupgpu}
+]
+#!/bin/bash
+
+# Creating Miniconda directory
+echo "Creating Miniconda directory..."
+mkdir -p ~/miniconda3
+
+# Downloading Miniconda installer
+echo "Downloading Miniconda installer..."
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+
+# Installing Miniconda
+echo "Installing Miniconda..."
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+
+# Removing the installer to save space
+echo "Removing Miniconda installer..."
+rm -rf ~/miniconda3/miniconda.sh
+
+# Initializing Conda for bash
+echo "Initializing Conda for bash..."
+~/miniconda3/bin/conda init bash
+
+source ./.bashrc
+
+# Updating Conda
+echo "Updating Conda..."
+conda update conda -y
+
+# Installing Git
+echo "Installing Git..."
+conda install git -y
+
+# Cloning the gprMax repository
+echo "Cloning gprMax repository..."
+git clone https://github.com/MaulanaGilang/gprMax.git
+
+# Changing directory to gprMax
+echo "Changing directory to gprMax..."
+cd gprMax
+
+# Creating Conda environment from file
+echo "Creating Conda environment from conda_env.yml..."
+conda env create -f conda_env.yml
+
+# Activating the gprMax environment
+echo "Activating gprMax environment..."
+conda activate gprMax
+
+# Building gprMax
+echo "Building gprMax..."
+python setup.py build
+
+# Installing gprMax
+echo "Installing gprMax..."
+python setup.py install
+
+# Installing PyCUDA
+echo "Installing PyCUDA..."
+pip install pycuda
+
+echo "Setup complete. gprMax is ready to use."
+\end{lstlisting}
+
+\subsection*{Program Otomatiasi Generate Data Melalui gprMax dengan GPU}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program Otomatiasi Generate Data gprMax dengan GPU},
+    label={lst:autogprmax}
+]
+import argparse
+import os
+import subprocess
+from shutil import move
+import re
+import matplotlib.pyplot as plt
+from tools.plot_Bscan import get_output_data, mpl_plot
+from PIL import Image
+
+def natural_keys(text):
+    """Helper function for natural sorting (sorts text with embedded numbers correctly)."""
+    return [int(c) if c.isdigit() else c for c in re.split('(\d+)', text)]
+
+def list_in_files_recursive(directory):
+    """List all .in files recursively in the given directory."""
+    in_files = {}
+    for root, dirs, files in os.walk(directory):
+        for f in files:
+            if f.endswith('.in'):
+                key = os.path.splitext(f)[0]
+                in_files[key] = os.path.join(root, f)
+    return in_files
+
+def run_gprMax(file_path, n, use_gpu):
+    """Run gprMax command on a file."""
+    gpu_flag = '-gpu' if use_gpu else ''
+    command = f'python -m gprMax {file_path} -n {n} {gpu_flag}'
+    print("Running command: ", command)
+    subprocess.run(command, shell=True, check=True)
+
+def merge_output_files(directory, file_without_ext):
+    """Merge output files in the directory based on the .in filename and delete the original .out files."""
+    subprocess.run(f'python -m tools.outputfiles_merge {directory}/{file_without_ext}', shell=True, check=True)
+    
+    # New code to delete original .out files
+    pattern = f'^{file_without_ext}\d+\.out$'
+    for f in os.listdir(directory):
+        if re.match(pattern, f):
+            os.remove(os.path.join(directory, f))
+
+def ensure_directory_exists(directory):
+    """Ensure the specified directory exists, create if it doesn't."""
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def move_output_file(source_path, dest_directory):
+    """Move the file to the specified output directory, creating the directory if necessary."""
+    ensure_directory_exists(dest_directory)
+    dest_path = os.path.join(dest_directory, os.path.basename(source_path))
+    move(source_path, dest_path)
+
+    return dest_path
+
+def process_file(file_path, rxnumber, rxcomponent, non_greyscale_dir, greyscale_dir):
+    """Generate plots for a .out file, save color and cropped images (without converting to grayscale)."""
+    outputdata, dt = get_output_data(file_path, rxnumber, rxcomponent)
+    plt_figure = mpl_plot(file_path, outputdata, dt, rxnumber, rxcomponent)
+    plt_figure.axis('off')
+
+    savefile = os.path.splitext(os.path.basename(file_path))[0]
+    image_path_with_colorbar = os.path.join(non_greyscale_dir, savefile + '.jpg')
+    cropped_image_path = os.path.join(greyscale_dir, savefile + '_cropped.jpg')  # Renamed variable for clarity
+
+    plt_figure.savefig(image_path_with_colorbar, dpi=150, format='JPEG', bbox_inches='tight', pad_inches=0.1)
+    plt.close()
+
+    color_bar_width = 300  # Adjusted to 300 pixels as per requirement
+    left_crop = 20  # Left side crop
+    bottom_crop = 20  # Bottom side crop adjustment
+
+    image = Image.open(image_path_with_colorbar)
+    cropped_image = image.crop((left_crop, 0, image.width - color_bar_width - left_crop, image.height - bottom_crop))
+    cropped_image.save(cropped_image_path)  # Save the cropped image directly
+
+def main(args):
+    in_files = list_in_files_recursive(args.input)
+    sorted_keys = sorted(in_files.keys(), key=natural_keys)
+
+    start = args.start if args.start is not None else 0
+    end = args.end if args.end is not None else len(sorted_keys)
+
+    processed_count = 0
+    processed_files = []  # Keep track of processed _merged.out files
+
+    rxnumber = 1
+    rxcomponent = 'Ez'
+    non_greyscale_dir = 'images/non'
+    greyscale_dir = 'images/greyscale'
+    ensure_directory_exists(non_greyscale_dir)
+    ensure_directory_exists(greyscale_dir)
+
+    for key in sorted_keys[start:end]:
+        file_path = in_files[key]
+        run_gprMax(file_path, args.n, args.gpu)
+
+        if args.merge:
+            merge_output_files(os.path.dirname(file_path), key)
+            merged_file = key + '_merged.out'
+            # Adjust merged_path to use the output directory where the file has been moved
+            merged_path = os.path.join(os.path.dirname(file_path), merged_file)  # Adjusted to reflect the correct directory
+            new_path = move_output_file(merged_path, args.output)  # This operation may be redundant if merged_path already points to the correct location
+
+            process_file(new_path, rxnumber, rxcomponent, non_greyscale_dir, greyscale_dir)
+            processed_files.append(new_path)
+            processed_count += 1
+
+    # After all files processed, check for any remaining _merged.out files to process
+    if processed_files:
+        for file in processed_files:
+            os.remove(file)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process .in files with gprMax.')
+    parser.add_argument('-i', '--input', required=True, help='Input folder path')
+    parser.add_argument('--start', type=int, help='Start index (optional)')
+    parser.add_argument('--end', type=int, help='End index (optional)')
+    parser.add_argument('--merge', action='store_true', default=False, help='Merge output files')
+    parser.add_argument('--gpu', action='store_true', default=False, help='Use GPU for processing')
+    parser.add_argument('-n', required=True, type=int, help='Number of iterations')
+    parser.add_argument('-o', '--output', required=True, help='Output folder path')
+    args = parser.parse_args()
+
+    main(args)
+
+
+\end{lstlisting}
+
+\subsection*{Program Generate Data Melalui Augmentasi}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program Generate Data Melalui Augmentasi},
+    label={lst:augmengprmax}
+]
+from PIL import Image
+import os
+from tqdm import tqdm
+
+# Load the images
+line_path = os.path.join('noairgap', 'line.png')
+wave_path = os.path.join('noairgap', 'wave.png')
+
+line_img = Image.open(line_path)
+wave_img = Image.open(wave_path)
+
+# Create a new image with the same size as the line image but with alpha to composite images over it
+result_img = Image.new('RGBA', (1860, 1160), (255, 255, 255, 0))
+
+# Paste the line image at (0, 0)
+result_img.paste(line_img, (0, 0), line_img)
+
+# Function to apply transformations and save the results
+def transform_and_save(wave_img, result_img, shift_x, shift_y, crop_size, file_name):
+    temp_img = result_img.copy()
+    # Paste the wave image at (0, 0) with the specified horizontal and vertical shifts
+    temp_img.paste(wave_img, (shift_x, shift_y), wave_img)
+    temp_img.paste(line_img, (0, 0), line_img)
+    # Crop the image
+    cropped_img = temp_img.crop((0, 0, crop_size[0], crop_size[1]))
+    # Save the image
+    cropped_img.save(file_name)
+
+crop_size = (1860, 1160)
+
+wave_width, wave_height = wave_img.size
+horizontal_step = 5
+vertical_step = 20
+vertical_limit = 100
+
+print("It will generate", (wave_width - 1860) // horizontal_step * (vertical_limit // vertical_step + 1), "images")
+
+counter = 0
+for horizontal_shift in tqdm(range(-wave_width + 1860, 0, horizontal_step)):
+  for vertical_shift in range(0, vertical_limit + 1, vertical_step):
+    file_name = f'noairgap/fix/data_{counter}.png'
+    transform_and_save(wave_img, result_img, horizontal_shift, vertical_shift, crop_size, file_name)
+    counter += 1
+\end{lstlisting}
+
+\subsection*{Program Preprocessing Data}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program untuk Memformat Ulang Tipe File},
+    label={lst:reformat}
+]
+from PIL import Image
+import os
+def convert_directory_to_jpeg(input_dir, output_base_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+            if file.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+                input_path = os.path.join(root, file)
+                relative_path = os.path.relpath(root, input_dir)
+                output_dir = os.path.join(output_base_dir, relative_path)
+
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+
+                output_file = os.path.splitext(os.path.join(output_dir, file))[0] + '.jpg'
+
+                # Load the image
+                image = Image.open(input_path)
+
+                # If the image has an alpha channel, convert it to RGB and fill transparency with white
+                if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+                    # Create a white background image
+                    background = Image.new('RGB', image.size, (255, 255, 255))
+                    # Paste the image onto the background
+                    background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
+                    image = background
+
+                # Save the image in JPEG format
+                image.save(output_file, 'JPEG')
+
+                # print(f"Image saved as {output_file}")
+                break
+
+# Example usage
+input_dir = 'dataset'  # Change this to your input directory path
+output_base_dir = 'out'  # Change this to your desired output base directory
+
+convert_directory_to_jpeg(input_dir, output_base_dir)
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Program untuk Binarization Gambar},
+    label={lst:binaryimage}
+]
+import cv2
+import os
+from pathlib import Path
+from tqdm import tqdm
+
+def process_image(image_path, output_dir):
+    # Read the image
+    img = cv2.imread(str(image_path))
+    
+    # Convert to grayscale
+    gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Apply Otsu's thresholding
+    _, binary_image = cv2.threshold(gray_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    # Construct the output path
+    output_path = output_dir / image_path.relative_to(input_dir)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save the binary image
+    cv2.imwrite(str(output_path), binary_image)
+
+def process_directory(input_dir, output_dir):
+    input_dir = Path(input_dir)
+    output_dir = Path(output_dir)
+
+    # Prepare a list of image files to process
+    image_files = [Path(root) / file for root, _, files in os.walk(input_dir) for file in files if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
+    
+    # Process each image with a progress bar
+    for image_path in tqdm(image_files, desc="Processing images"):
+        process_image(image_path, output_dir)
+
+# Specify the input and output directories
+input_dir = 'dataset'
+output_dir = 'out'
+
+# Process the directory
+process_directory(input_dir, output_dir)
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Pertama}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Pertama},
+    label={lst:cnn1}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v1 d1.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/1DBPtAJpUwnFAbiazC_suoOmEWDtla0wC
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number generator
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.22225
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.22225
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional Block
+model.add(Conv2D(128, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Fourth Convolutional Block
+model.add(Conv2D(256, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Flattening and Fully Connected Layers
+model.add(Flatten())
+model.add(Dense(256, activation="relu"))
+model.add(Dropout(0.5))  # Dropout layer to reduce overfitting
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))  # Another dropout layer
+
+# Output Layer for binary classification
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=80,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/another/1rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks1'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Kedua}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Kedua},
+    label={lst:cnn2}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v1 d2.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/1Rbs0ElddUPIz1tzB4VAn-gmnBZ1Wl7nD
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another1/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.1765
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.1765
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional Block
+model.add(Conv2D(128, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Fourth Convolutional Block
+model.add(Conv2D(256, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Flattening and Fully Connected Layers
+model.add(Flatten())
+model.add(Dense(256, activation="relu"))
+model.add(Dropout(0.5))  # Dropout layer to reduce overfitting
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))  # Another dropout layer
+
+# Output Layer for binary classification
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=60,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/another1/2rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another1/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks2'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Ketiga}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Ketiga},
+    label={lst:cnn3}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v1 d3.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/1REU_uabiXleR9J2P306nMpuyenmJobka
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.25
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.25
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional Block
+model.add(Conv2D(128, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Fourth Convolutional Block
+model.add(Conv2D(256, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Flattening and Fully Connected Layers
+model.add(Flatten())
+model.add(Dense(256, activation="relu"))
+model.add(Dropout(0.5))  # Dropout layer to reduce overfitting
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))  # Another dropout layer
+
+# Output Layer for binary classification
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=80,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/3rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks3'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Keempat}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Keempat},
+    label={lst:cnn4}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v2 d2.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/14j8vm7ZgSmFuK882nIG5Jnml11XZ73hg
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number generator
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another1/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.1765
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.1765
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation="relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional Block
+model.add(Conv2D(128, (3, 3), activation="relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Fourth Convolutional Block
+model.add(Conv2D(256, (3, 3), activation="relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Flattening and Fully Connected Layers
+model.add(Flatten())
+model.add(Dense(256, activation="relu"))
+model.add(Dropout(0.5))  # Dropout layer to reduce overfitting
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))  # Another dropout layer
+
+# Output Layer for binary classification
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=60,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/4rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another1/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks4'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Kelima}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Kelima},
+    label={lst:cnn5}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v3 d2.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/1PlukUiRafS8ZGE8S26rNjQ3WD0SEQ-tP
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number generator
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another1/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.1765
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.1765
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation="relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D((2, 2)))
+
+# Flattening and Fully Connected Layers
+model.add(Flatten())
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))  # Dropout layer to reduce overfitting
+
+# Output Layer for binary classification
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=60,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/5rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another1/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks5'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Keenam}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Keenam},
+    label={lst:cnn6}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v4 d3.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/1J9nJXK3vrTZfJ6JgwF8-ERq4FC6YQ5lh
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number generator
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another1/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.1765
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.1765
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+# Now your model definition follows
+model = Sequential()
+
+# First Convolutional Block
+model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(330, 540, 1), padding='same'))
+model.add(MaxPooling2D((2, 2)))
+
+# Second Convolutional Block
+model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional Block
+model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(MaxPooling2D((2, 2)))
+
+# Adding Dropout after Max Pooling in the Third Block
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.5))
+
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=60,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/6rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another1/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks6'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program CNN 2-Dimensi Percobaan Ketujuh}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program CNN 2-Dimensi Percobaan Ketujuh},
+    label={lst:cnn7}
+]
+# -*- coding: utf-8 -*-
+"""CNN TA v5 d3.ipynb
+
+Automatically generated by Colab.
+
+Original file is located at
+    https://colab.research.google.com/drive/14YJiY7-QgkdhxnLSejOSxlxHOtxi2uiL
+"""
+
+import tensorflow as tf
+tf.__version__
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.metrics import Precision, Recall
+import os
+import time
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set the seed for TensorFlow's random number generator
+np.random.seed(42)
+tf.random.set_seed(42)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+datasetDir = "/content/drive/MyDrive/KeperluanTA/another1/out"
+
+train_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    fill_mode="nearest",
+    validation_split=0.1765
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1.0/255,
+    validation_split=0.1765
+)
+
+train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="training"
+)
+
+validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,
+    class_mode="binary",  # Set class_mode to "categorical" for multi-class classification
+    color_mode="grayscale",  # Generate grayscale images
+    subset="validation"
+)
+
+print(train_generator.class_indices)
+
+train_generator.image_shape
+
+model = Sequential()
+
+# Input layer and first Convolutional block
+model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(330, 540, 1)))
+model.add(MaxPooling2D((4, 4)))
+
+# Second Convolutional block
+model.add(Conv2D(34, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Third Convolutional block
+model.add(Conv2D(32, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Fourth Convolutional block
+model.add(Conv2D(32, (3, 3), activation="relu"))
+model.add(MaxPooling2D((2, 2)))
+
+# Fifth Convolutional block
+model.add(Conv2D(32, (3, 3), activation="relu"))
+
+# Sixth Convolutional block
+model.add(Conv2D(32, (3, 3), activation="relu"))
+
+# Flattening layer
+model.add(Flatten())
+
+model.add(Dense(1, activation="sigmoid"))
+
+model.summary()
+
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
+
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define EarlyStopping callback
+early_stopping = EarlyStopping(
+    monitor='val_loss',     # Metric to monitor
+    patience=10,             # Number of epochs with no improvement after which training will be stopped
+    verbose=1,              # To log when training is being stopped
+    mode='min',             # Stops training when the quantity monitored has stopped decreasing
+    restore_best_weights=True  # Restores model weights from the epoch with the best value of the monitored quantity
+)
+
+# Fit the model with the EarlyStopping callback
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=100,
+    validation_steps=60,
+    verbose=1,
+    callbacks=[early_stopping]  # Include the callback in the list
+)
+
+model.evaluate(validation_generator)
+
+model.evaluate(train_generator)
+
+# Specify the directory path
+save_dir = '/content/drive/MyDrive/KeperluanTA/7rev'
+
+# Create the directory if it doesn't exist
+os.makedirs(save_dir, exist_ok=True)
+
+# Save the model to the specified directory
+model.save(save_dir + 'model.h5')
+
+model.save("model.h5")
+
+import matplotlib.pyplot as plt
+
+# Plot training & validation accuracy values
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+# Plot training & validation loss values
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+
+plt.show()
+
+import time
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create new generators without shuffling for evaluating confusion matrix
+eval_train_generator = train_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Adjust this based on your setup
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="training"
+)
+
+eval_validation_generator = val_datagen.flow_from_directory(
+    datasetDir,
+    target_size=(330, 540),
+    batch_size=10,  # Match the batch size used for training/validation
+    class_mode="binary",  # Adjusted for binary classification
+    color_mode="grayscale",
+    shuffle=False,  # Important for matching predictions to labels
+    subset="validation"
+)
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+train_predictions = model.predict(eval_train_generator, verbose=1)
+validation_predictions = model.predict(eval_validation_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+train_pred_classes = (train_predictions > 0.5).astype(int).reshape(-1)
+validation_pred_classes = (validation_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+train_true_classes = eval_train_generator.classes
+validation_true_classes = eval_validation_generator.classes
+
+# Compute confusion matrices
+train_cm = confusion_matrix(train_true_classes, train_pred_classes)
+validation_cm = confusion_matrix(validation_true_classes, validation_pred_classes)
+
+# Plotting the confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.heatmap(train_cm, annot=True, fmt='d', cmap='Blues', ax=ax[0])
+ax[0].set_title('Training Confusion Matrix')
+ax[0].set_xlabel('Predicted Labels')
+ax[0].set_ylabel('True Labels')
+ax[0].set_xticklabels(['Negative', 'Positive'])
+ax[0].set_yticklabels(['Negative', 'Positive'])
+
+sns.heatmap(validation_cm, annot=True, fmt='d', cmap='Greens', ax=ax[1])
+ax[1].set_title('Validation Confusion Matrix')
+ax[1].set_xlabel('Predicted Labels')
+ax[1].set_ylabel('True Labels')
+ax[1].set_xticklabels(['Negative', 'Positive'])
+ax[1].set_yticklabels(['Negative', 'Positive'], va='center')
+
+plt.tight_layout()
+plt.show()
+
+import time
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+testDir = "/content/drive/MyDrive/KeperluanTA/another1/testout"
+
+# Set up the test data generator
+test_datagen = ImageDataGenerator(rescale=1.0/255)
+
+test_generator = test_datagen.flow_from_directory(
+    testDir,  # Directory with test images
+    target_size=(330, 540),
+    batch_size=10,  # Adjust based on your setup
+    class_mode="binary",  # Ensure this matches your label setup
+    color_mode="grayscale",
+    shuffle=False  # Important for matching predictions to labels
+)
+
+# Start timer for inference
+start_time = time.time()
+
+# Predict the data
+test_predictions = model.predict(test_generator, verbose=1)
+
+# End timer and calculate inference time
+inference_time = time.time() - start_time
+print("Inference time for the test set: {:.2f} seconds".format(inference_time))
+
+# Convert probabilities to binary predictions based on a 0.5 threshold
+test_pred_classes = (test_predictions > 0.5).astype(int).reshape(-1)
+
+# True labels (already in binary format)
+test_true_classes = test_generator.classes
+
+# Compute the confusion matrix
+test_cm = confusion_matrix(test_true_classes, test_pred_classes)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(test_cm, annot=True, fmt='d', cmap='Purples')
+plt.title('Test Confusion Matrix')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.xticks([0.5, 1.5], ['Negative', 'Positive'])
+plt.yticks([0.5, 1.5], ['Negative', 'Positive'], va='center')
+plt.show()
+
+import tensorflow as tf
+from tensorflow.keras.metrics import Precision, Recall
+
+# Define a custom F1 score metric
+class F1Score(tf.keras.metrics.Metric):
+    def __init__(self, name='f1_score', **kwargs):
+        super(F1Score, self).__init__(name=name, **kwargs)
+        self.precision = Precision()
+        self.recall = Recall()
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        self.precision.update_state(y_true, y_pred, sample_weight)
+        self.recall.update_state(y_true, y_pred, sample_weight)
+
+    def result(self):
+        p = self.precision.result()
+        r = self.recall.result()
+        return 2 * ((p * r) / (p + r + tf.keras.backend.epsilon()))
+
+    def reset_state(self):
+        self.precision.reset_state()
+        self.recall.reset_state()
+
+# Instantiate the F1Score metric for training, validation, and test
+f1_score_train = F1Score()
+f1_score_val = F1Score()
+f1_score_test = F1Score()
+
+# Update the state of the F1Score metric with training data
+f1_score_train.update_state(train_true_classes, train_pred_classes)
+# Update the state of the F1Score metric with validation data
+f1_score_val.update_state(validation_true_classes, validation_pred_classes)
+# Update the state of the F1Score metric with test data
+f1_score_test.update_state(test_true_classes, test_pred_classes)
+
+# Calculate and print the F1 scores
+print("Calculated F1 Score for Training Set:", f1_score_train.result().numpy())
+print("Calculated F1 Score for Validation Set:", f1_score_val.result().numpy())
+print("Calculated F1 Score for Test Set:", f1_score_test.result().numpy())
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks7'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program Training YOLOv9}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program Training YOLOv9},
+    label={lst:yolotrain}
+]
+!nvidia-smi
+import os
+HOME = os.getcwd()
+print(HOME)
+
+!git clone https://github.com/WongKinYiu/yolov9.git
+%cd yolov9
+!pip install -r requirements.txt -q
+
+!pip install -q roboflow
+import roboflow
+from IPython.display import Image
+
+!mkdir -p {HOME}/weights
+!wget -P {HOME}/weights -q https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c.pt
+!wget -P {HOME}/weights -q https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-e.pt
+!wget -P {HOME}/weights -q https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c.pt
+!wget -P {HOME}/weights -q https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-e.pt
+!ls -la {HOME}/weights
+
+%cd {HOME}/yolov9
+from roboflow import Roboflow
+rf = Roboflow(api_key="5dDggxfyiXKXXOiHfrDv")
+project = rf.workspace("fp-pcv-z6u2a").project("detect-cl54w")
+version = project.version(1)
+dataset = version.download("yolov9")
+
+%cd {HOME}/yolov9
+!python train.py \
+--batch 8 --epochs 10 --img 640 --device 0 --min-items 0 --close-mosaic 15 \
+--data {dataset.location}/data.yaml \
+--weights {HOME}/weights/gelan-c.pt \
+--cfg models/detect/gelan-c.yaml \
+--hyp hyp.scratch-high.yaml
+
+!ls {HOME}/yolov9/runs/train/exp/
+Image(filename=f"{HOME}/yolov9/runs/train/exp/results.png", width=1000)
+Image(filename=f"{HOME}/yolov9/runs/train/exp/confusion_matrix.png", width=1000)
+Image(filename=f"{HOME}/yolov9/runs/train/exp/val_batch0_pred.jpg", width=1000)
+
+%cd {HOME}/yolov9
+!python val.py \
+--img 640 --batch 8 --conf 0.001 --iou 0.7 --device 0 \
+--data {dataset.location}/data.yaml \
+--weights {HOME}/yolov9/runs/train/exp/weights/best.pt
+
+!python detect.py \
+--img 640 --conf 0.1 --device 0 \
+--weights {HOME}/yolov9/runs/train/exp/weights/best.pt \
+--source {dataset.location}/valid/images
+\end{lstlisting}
+
+\subsection*{Program Pengujian Model CNN 2-Dimensi}
+\begin{lstlisting}[
+    language=Python,
+    caption={Pengujian Model CNN 2-Dimensi},
+    label={lst:ujicnn}
+]
+from google.colab import drive
+drive.mount('/content/drive')
+
+import os
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from PIL import Image, ImageDraw
+
+# Assuming `model` and `test_generator` have already been defined as in your original code.
+
+# Create a directory to save the annotated images
+save_dir = '/content/drive/MyDrive/Deteksi/Eks6'
+os.makedirs(save_dir, exist_ok=True)
+
+# Iterate over each batch in the test generator
+for i in range(len(test_generator)):
+    images, labels = test_generator.next()
+    predictions = model.predict(images)
+    pred_classes = (predictions > 0.5).astype(int)
+
+    # Process each image in the batch
+    for j in range(len(images)):
+        # Correctly handle images based on channel information
+        if images[j].shape[-1] == 3:  # Color images
+            img = Image.fromarray((images[j] * 255).astype('uint8')).convert('L')
+        else:  # Grayscale images, potentially with a channel dimension of 1
+            # Ensure the image is 2D
+            img_array = (images[j] * 255).squeeze()  # Remove singleton dimensions
+            img = Image.fromarray(img_array.astype('uint8'), 'L')
+
+        # Determine predicted class name
+        predicted_label = pred_classes[j]
+        predicted_class_name = "noairgap" if predicted_label == 1 else "airgap"
+
+        # Prepare text to draw on the image
+        annotation = f'Predicted class: {predicted_class_name}'
+
+        # Draw text on the image using PIL (default font)
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), annotation, fill='white')
+
+        # Add title to the image
+        plt.imshow(img, cmap='gray')  # Ensure the image is displayed as grayscale
+        plt.title(f'Predicted class: {predicted_class_name}')  # Display the name of the predicted class
+        plt.axis('off')
+
+        # Get the original filename
+        original_filename = test_generator.filenames[test_generator.batch_index * test_generator.batch_size + j]
+        original_filename = os.path.basename(original_filename)  # Get just the file name
+
+        # Generate new filename based on predicted class
+        predicted_filename = original_filename.split('.')[0] + '_' + predicted_class_name + '.' + original_filename.split('.')[-1]
+
+        # Save the image with the new filename
+        plt.savefig(os.path.join(save_dir, predicted_filename), bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+print("Images have been annotated and saved.")
+\end{lstlisting}
+
+\subsection*{Program Pengujian Model YOLOv9}
+\begin{lstlisting}[
+    language=Python,
+    caption={Program Pengujian Model YOLOv9},
+    label={lst:ujiyolo}
+]
+from google.colab import drive
+drive.mount('/content/drive')
+
+import os
+base_dir = '/content/drive/MyDrive/KumpulanModel'
+model_path = os.path.join(base_dir, 'best.pt')
+image_path = os.path.join(base_dir, 'picture/wn.jpg')
+
+!git clone https://github.com/WongKinYiu/yolov9.git
+%cd yolov9
+!pip install -r requirements.txt -q
+
+!python detect.py --weights '{model_path}' --img 640 --conf 0.25 --source '{image_path}'
+from IPython.display import Image, display
+for imageName in os.listdir('/content/yolov9/runs/detect/exp'):
+    display(Image(filename='/content/yolov9/runs/detect/exp/' + imageName))
+\end{lstlisting}

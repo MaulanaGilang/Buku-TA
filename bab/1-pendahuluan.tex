@@ -1,0 +1,35 @@
+\chapter{PENDAHULUAN}
+\label{chap:pendahuluan}
+
+% Ubah bagian-bagian berikut dengan isi dari pendahuluan
+
+\section{Latar Belakang}
+\label{sec:latarbelakang}
+Beton, sebagai salah satu material konstruksi yang paling sering digunakan, memegang peranan penting dalam berbagai proyek infrastruktur. Menurut data, sekitar 70\% dari proyek-proyek konstruksi di dunia menggunakan beton sebagai material utamanya \parencite{Peng2022}. Kesehatan dan integritas beton sangat penting untuk menjamin keamanan dan durabilitas struktur yang dibangun. Salah satu masalah yang sering dihadapi dalam konstruksi beton adalah adanya air gap atau rongga udara. Rongga udara ini terbentuk akibat proses pencampuran dan pengecoran beton yang kurang sempurna \parencite{Karisma2022OptimumVibration}. Adanya rongga udara dapat mengurangi kekuatan beton hingga 30\% \parencite{Goncharov2021} dan mempengaruhi kinerjanya dalam jangka panjang. Selain itu, kerusakan lain seperti retak, amorfisasi, dan delaminasi juga dapat terjadi pada struktur beton \parencite{Rodrigues2022}.
+
+Untuk memastikan kualitas beton, diperlukan metode pengujian. Ada dua jenis metode pengujian, yaitu destructive dan non-destructive testing (NDT). Metode destructive melibatkan pengambilan sampel beton dan pengujian di laboratorium, namun metode ini dapat merusak struktur dan memerlukan biaya yang lebih besar \parencite{Karisma2022OptimumVibration}. Sebaliknya, NDT memungkinkan pengujian tanpa merusak struktur. Salah satu alat NDT yang populer adalah Ground Penetrating Radar (GPR). GPR memungkinkan deteksi objek tertanam di dalam beton, seperti rebar atau tulangan besi, serta adanya rongga udara atau air gap \parencite{Rodrigues2022}. Namun, interpretasi data dari GPR memerlukan keahlian khusus dan seringkali sulit dilakukan secara manual
+
+Dalam dekade terakhir, perkembangan teknologi deep learning, khususnya Convolutional Neural Network (CNN), telah memberikan kemajuan signifikan dalam berbagai aplikasi, termasuk dalam bidang pengenalan pola dan analisis citra. CNN adalah salah satu metode yang dapat digunakan dalam pemanfaatan data dari GPR untuk mendeteksi objek tertanam di dalam beton dengan akurasi yang lebih tinggi \parencite{Peng2022}. Oleh karena itu, penelitian ini akan diajukan dengan judul "Deteksi Airgap di Dalam Beton Menggunakan CNN Multi-label dari Data gprMax 2 Dimensi".
+\section{Permasalahan}
+\label{sec:permasalahan}
+
+Berdasarkan latar belakang yang telah dijelaskan sebelumnya, maka dapat ditarik beberapa poin permasalahan yaitu adanya airgap di dalam beton yang dapat mempengaruhi kesehatan dari beton itu sendiri dan metode pendeteksian airgap yang baik.
+
+\section{Tujuan}
+\label{sec:Tujuan}
+Tujuan dari penelitian ini adalah mendeteksi adanya airgap di dalam beton dan menentukan model CNN yang baik untuk deteksi airgap.
+
+\section{Batasan Masalah}
+\label{sec:batasanmasalah}
+Batasan masalah pada penelitian kali ini mengikuti referensi dari penelitian yang berjudul "Perencanaan Bangunan Gedung Tahan Gempa 11 Lantai dengan Sistem Ganda" \parencite{Jeply2021} antara lain:
+\begin{enumerate}
+    \item Objek yang akan dimasukkan ke dalam deteksi adalah airgap dan rebar
+    \item Simulasi model yang dibentuk dengan gprMax akan berfokus pada sintesis sinyal B-Scan berbentuk parabolik dengan center frequency 4.5 GHz dan bentuk gelombang ricker
+    \item Jumlah airgap yang dideteksi berjumlah 1 hingga 2 buah objek irregular yang terdiri dari beberapa objek cavities yang saling menempel.
+    \item Digunakan ukuran beton sebagai media simulasi yakni beton untuk lantai dengan ketebalan 20 cm dengan error untuk posisi ketinggian rebar +- 1 cmn 
+    \item Airgap yang dideteksi akan direpresentaikan dalam objek berbentuk irregular dengan ukuran airgap berdiameter 2 cm hingga 7 cm
+    \item Rebar yang digunakan di dalam beton untuk lantai berdiameter 14 mm
+\end{enumerate}
+
+\section{Manfaat}
+Manfaat dari penelitian ini adalah menghailkan sebuah metode yang dapat melakukan proses deteksi objek berdasarkan sinyal Ground Penetrating Radar (GPR) yang didapatkan dari hasil simulasi gprMax dengan menggunakan CNN. Hasil deteksi yang optimal diharapkan dapat membantu untuk pengaplikasian deteksi ini pada kebutuhan di dunia nyata, contohnya pada perawatan bangunan, konstruksi, dan lain-lain. Data simulasi digunakan karena data simulasi menggunakan gprMax memiliki hasil yang serupa dengan data asli menggunakan alat. Selain itu, penggunaan data simulasi didasari atas tidak tersedianya alat ground penetrating radar.
