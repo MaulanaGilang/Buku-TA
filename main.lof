@@ -1,0 +1,105 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Prinsip kerja GPR \blx@tocontentsinit {0}\parencite {Persico2014}}}{4}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Sinyal A-scan \blx@tocontentsinit {0}\parencite {Daniels2004}}}{5}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Sinyal B-scan \blx@tocontentsinit {0}\parencite {Daniels2004}}}{5}{figure.2.3}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Sinyal C-scan \blx@tocontentsinit {0}\parencite {Daniels2004}}}{6}{figure.2.4}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Contoh file input simulasi gprMax \blx@tocontentsinit {0}\parencite {Craig2016}}}{6}{figure.2.5}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Pemodelan sinyal 2D pada gprMax \blx@tocontentsinit {0}\parencite {Giannopoulos2005}}}{7}{figure.2.6}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Pemodelan sinyal 3D pada gprMax \blx@tocontentsinit {0}\parencite {Giannopoulos2005}}}{7}{figure.2.7}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Arsitektur CNN sederhana \blx@tocontentsinit {0}\parencite {Keiron2015}}}{9}{figure.2.8}%
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Aktivasi dari convolutional layer pertama \blx@tocontentsinit {0}\parencite {Keiron2015}}}{9}{figure.2.9}%
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Representasi visual convolution layer \blx@tocontentsinit {0}\parencite {Keiron2015}}}{9}{figure.2.10}%
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Google Colab \blx@tocontentsinit {0}\parencite {Kimn2021}}}{12}{figure.2.11}%
+\contentsline {figure}{\numberline {2.12}{\ignorespaces Built-in CSS pada Next.js \blx@tocontentsinit {0}\parencite {lazuardy2022}}}{13}{figure.2.12}%
+\contentsline {figure}{\numberline {2.13}{\ignorespaces Routing pada Next.js\blx@tocontentsinit {0}\parencite {lazuardy2022}}}{14}{figure.2.13}%
+\contentsline {figure}{\numberline {2.14}{\ignorespaces Pre-rendering pada Next.js \blx@tocontentsinit {0}\parencite {lazuardy2022}}}{14}{figure.2.14}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Blok Diagram Penelitian}}{17}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Data Sinyal gprMax Setelah Dibersihkan}}{18}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Data Sinyal gprMax Setelah Dibersihkan}}{19}{figure.3.3}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Data Sinyal gprMax Setelah Dibersihkan}}{19}{figure.3.4}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Arsitektur Model CNN 2D Pertama}}{20}{figure.3.5}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Arsitektur Model CNN 2D Kedua}}{22}{figure.3.6}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Arsitektur Model CNN 2D Ketiga}}{23}{figure.3.7}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Arsitektur Model CNN 2D Keempat}}{24}{figure.3.8}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Arsitektur Model CNN 2D Kelima}}{25}{figure.3.9}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Flowchart Penggunaan Website}}{27}{figure.3.10}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Flowchart Website}}{28}{figure.3.11}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Gambar Platform Website 1}}{29}{figure.3.12}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Gambar Platform Website 2}}{29}{figure.3.13}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Gambar Platform Website 3}}{29}{figure.3.14}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Input File Generate Data}}{30}{figure.3.15}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Flowchart Setup GPU}}{31}{figure.3.16}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Flowchart Setup GPU}}{32}{figure.3.17}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Kode Otomatiasi Generate Data}}{34}{figure.3.18}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Input File Generate Data}}{36}{figure.3.19}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Mengubah Format Gambar Sinyal}}{37}{figure.3.20}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces Proses Binarisasi}}{39}{figure.3.21}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Training CNN 2D}}{40}{figure.3.22}%
+\contentsline {figure}{\numberline {3.23}{\ignorespaces Pengujian Klasifikasi}}{42}{figure.3.23}%
+\contentsline {figure}{\numberline {3.24}{\ignorespaces Deteksi YOLOv9}}{43}{figure.3.24}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Pertama}}{45}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Pertama}}{46}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Confussion Matrix Testing Percobaan Pertama}}{46}{figure.4.3}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Hasil Klasifikasi Percobaan Pertama 1}}{46}{figure.4.4}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Hasil Klasifikasi Percobaan Pertama 2}}{47}{figure.4.5}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Hasil Klasifikasi Percobaan Pertama 3}}{47}{figure.4.6}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Hasil Klasifikasi Percobaan Pertama 4}}{47}{figure.4.7}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Kedua}}{47}{figure.4.8}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Kedua}}{48}{figure.4.9}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Confussion Matrix Testing Percobaan Kedua}}{48}{figure.4.10}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Hasil Klasifikasi Percobaan Kedua 1}}{48}{figure.4.11}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Hasil Klasifikasi Percobaan Kedua 2}}{49}{figure.4.12}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Hasil Klasifikasi Percobaan Kedua 3}}{49}{figure.4.13}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Hasil Klasifikasi Percobaan Kedua 4}}{49}{figure.4.14}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Ketiga}}{49}{figure.4.15}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Ketiga}}{50}{figure.4.16}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces Confussion Matrix Testing Percobaan Ketiga}}{50}{figure.4.17}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Hasil Klasifikasi Percobaan Ketiga 1}}{51}{figure.4.18}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces Hasil Klasifikasi Percobaan Ketiga 2}}{51}{figure.4.19}%
+\contentsline {figure}{\numberline {4.20}{\ignorespaces Hasil Klasifikasi Percobaan Ketiga 3}}{51}{figure.4.20}%
+\contentsline {figure}{\numberline {4.21}{\ignorespaces Hasil Klasifikasi Percobaan Ketiga 4}}{51}{figure.4.21}%
+\contentsline {figure}{\numberline {4.22}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Keempat}}{52}{figure.4.22}%
+\contentsline {figure}{\numberline {4.23}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Keempat}}{52}{figure.4.23}%
+\contentsline {figure}{\numberline {4.24}{\ignorespaces Confussion Matrix Testing Percobaan Keempat}}{53}{figure.4.24}%
+\contentsline {figure}{\numberline {4.25}{\ignorespaces Hasil Klasifikasi Percobaan Keempat 1}}{53}{figure.4.25}%
+\contentsline {figure}{\numberline {4.26}{\ignorespaces Hasil Klasifikasi Percobaan Keempat 2}}{53}{figure.4.26}%
+\contentsline {figure}{\numberline {4.27}{\ignorespaces Hasil Klasifikasi Percobaan Keempat 3}}{53}{figure.4.27}%
+\contentsline {figure}{\numberline {4.28}{\ignorespaces Hasil Klasifikasi Percobaan Keempat 4}}{53}{figure.4.28}%
+\contentsline {figure}{\numberline {4.29}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Kelima}}{54}{figure.4.29}%
+\contentsline {figure}{\numberline {4.30}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Kelima}}{55}{figure.4.30}%
+\contentsline {figure}{\numberline {4.31}{\ignorespaces Confussion Matrix Testing Percobaan Kelima}}{55}{figure.4.31}%
+\contentsline {figure}{\numberline {4.32}{\ignorespaces Hasil Klasifikasi Percobaan Kelima 1}}{55}{figure.4.32}%
+\contentsline {figure}{\numberline {4.33}{\ignorespaces Hasil Klasifikasi Percobaan Kelima 2}}{55}{figure.4.33}%
+\contentsline {figure}{\numberline {4.34}{\ignorespaces Hasil Klasifikasi Percobaan Kelima 3}}{56}{figure.4.34}%
+\contentsline {figure}{\numberline {4.35}{\ignorespaces Hasil Klasifikasi Percobaan Kelima 4}}{56}{figure.4.35}%
+\contentsline {figure}{\numberline {4.36}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Keenam}}{56}{figure.4.36}%
+\contentsline {figure}{\numberline {4.37}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Keenam}}{57}{figure.4.37}%
+\contentsline {figure}{\numberline {4.38}{\ignorespaces Confussion Matrix Testing Percobaan Keenam}}{57}{figure.4.38}%
+\contentsline {figure}{\numberline {4.39}{\ignorespaces Hasil Klasifikasi Percobaan Keenam 1}}{57}{figure.4.39}%
+\contentsline {figure}{\numberline {4.40}{\ignorespaces Hasil Klasifikasi Percobaan Keenam 2}}{58}{figure.4.40}%
+\contentsline {figure}{\numberline {4.41}{\ignorespaces Hasil Klasifikasi Percobaan Keenam 3}}{58}{figure.4.41}%
+\contentsline {figure}{\numberline {4.42}{\ignorespaces Hasil Klasifikasi Percobaan Keenam 4}}{58}{figure.4.42}%
+\contentsline {figure}{\numberline {4.43}{\ignorespaces Grafik Akurasi dan Loss Model Percobaan Ketujuh}}{59}{figure.4.43}%
+\contentsline {figure}{\numberline {4.44}{\ignorespaces Confussion Matrix Training dan Validasi Percobaan Ketujuh}}{59}{figure.4.44}%
+\contentsline {figure}{\numberline {4.45}{\ignorespaces Confussion Matrix Testing Percobaan Ketujuh}}{60}{figure.4.45}%
+\contentsline {figure}{\numberline {4.46}{\ignorespaces Hasil Klasifikasi Percobaan Ketujuh 1}}{60}{figure.4.46}%
+\contentsline {figure}{\numberline {4.47}{\ignorespaces Hasil Klasifikasi Percobaan Ketujuh 2}}{60}{figure.4.47}%
+\contentsline {figure}{\numberline {4.48}{\ignorespaces Hasil Klasifikasi Percobaan Ketujuh 3}}{60}{figure.4.48}%
+\contentsline {figure}{\numberline {4.49}{\ignorespaces Hasil Klasifikasi Percobaan Ketujuh 4}}{60}{figure.4.49}%
+\contentsline {figure}{\numberline {4.50}{\ignorespaces Hasil Training Loss dan Validation Accuracy Roboflow}}{61}{figure.4.50}%
+\contentsline {figure}{\numberline {4.51}{\ignorespaces Confussion Matrix Roboflow}}{62}{figure.4.51}%
+\contentsline {figure}{\numberline {4.52}{\ignorespaces Hasil Klasifikai Roboflow 1}}{62}{figure.4.52}%
+\contentsline {figure}{\numberline {4.53}{\ignorespaces Hasil Klasifikai Roboflow 2}}{62}{figure.4.53}%
+\contentsline {figure}{\numberline {4.54}{\ignorespaces Hasil Klasifikai Roboflow 3}}{62}{figure.4.54}%
+\contentsline {figure}{\numberline {4.55}{\ignorespaces Hasil Klasifikai Roboflow 4}}{63}{figure.4.55}%
+\contentsline {figure}{\numberline {4.56}{\ignorespaces Hasil Klasifikai Roboflow 5}}{63}{figure.4.56}%
+\contentsline {figure}{\numberline {4.57}{\ignorespaces Metrics YOLOv9}}{63}{figure.4.57}%
+\contentsline {figure}{\numberline {4.58}{\ignorespaces Confussion Matrix YOLOv9}}{64}{figure.4.58}%
+\contentsline {figure}{\numberline {4.59}{\ignorespaces Hasil Deteksi YOLOv9 1}}{64}{figure.4.59}%
+\contentsline {figure}{\numberline {4.60}{\ignorespaces Hasil Deteksi YOLOv9 2}}{64}{figure.4.60}%
+\contentsline {figure}{\numberline {4.61}{\ignorespaces Hasil Deteksi YOLOv9 3}}{64}{figure.4.61}%
+\contentsline {figure}{\numberline {4.62}{\ignorespaces Hasil Deteksi YOLOv9 4}}{64}{figure.4.62}%
+\addvspace {10\p@ }
